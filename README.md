@@ -126,7 +126,7 @@ with
 			cancel()
 		} 
 		// At this point, we have a successful payment with Stripe
-		// We stil have not submitted the form to our own server
+		// We still have not submitted the form to our own server
 		// The next line does that by sending it to the default form action
 		return async ({ result }) => {
 			if (result.status === 200) {
@@ -221,7 +221,7 @@ export const load = async () => {
 }
 ```
 
-Please note that `generateClientSecret()`` is not a real function.  It is a placeholder for however you generate a client secret using your ecommerce backend.
+Please note that `generateClientSecret()` is not a real function.  It is a placeholder for however you generate a client secret using your ecommerce backend.
 
 `+page.svelte`
 
