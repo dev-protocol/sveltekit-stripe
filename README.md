@@ -50,14 +50,14 @@ A functioning Stripe integration can be achieved with very little code:
 
 ```js
 <script>
-	import { PricingTable } from 'sveltekit-stripe'
-	import { PUBLIC_STRIPE_KEY, PUBLIC_STRIPE_TABLE_ID } from '$env/static/public'
+   import { PricingTable } from 'sveltekit-stripe'
+   import { PUBLIC_STRIPE_KEY, PUBLIC_STRIPE_TABLE_ID } from '$env/static/public'
 </script>
 
 <PricingTable publicKey={PUBLIC_STRIPE_KEY} tableId={PUBLIC_STRIPE_TABLE_ID} />
 ```
 
-The above is a complete Stripe integration. 
+The above is a complete Stripe integration.
 
 ### Example: Self-Hosted Checkout
 
@@ -67,34 +67,34 @@ Self-hosted checkout is more complex, but it allows you to completely customize 
 
 ```svelte
 <script>
-	import { Payment, stripeClient, stripeElements } from 'sveltekit-stripe'
-	import { PUBLIC_STRIPE_KEY } from '$env/static/public'
+   import { Payment, stripeClient, stripeElements } from 'sveltekit-stripe'
+   import { PUBLIC_STRIPE_KEY } from '$env/static/public'
 
-	let clientSecret = 'pi_1234567890...' // from your server, see README
-	let success = false
+   let clientSecret = 'pi_1234567890...' // from your server, see README
+   let success = false
 
-	const handleSubmit = async function() {
-		const stripeResponse = await $stripeClient.confirmPayment({ elements: $stripeElements, redirect: 'if_required' })
-		console.log(stripeResponse)
-		success = (stripeResponse.paymentIntent.status === 'succeeded')
-	}
+   const handleSubmit = async function() {
+      const stripeResponse = await $stripeClient.confirmPayment({ elements: $stripeElements, redirect: 'if_required' })
+      console.log(stripeResponse)
+      success = (stripeResponse.paymentIntent.status === 'succeeded')
+   }
 </script>
 
 {#if success === true}
-	<h1>Success!</h1>
-{:else if !clientSecret}
-	<h1>Something went wrong</h1>
-{:else}
-	<form class:hidden={success} on:submit|preventDefault={handleSubmit}>
-		<Payment publicKey={PUBLIC_STRIPE_KEY} {clientSecret} />
-		<button type="submit">Place Your Order</button>
-	</form>
+   <h1>Success!</h1>
+   {:else if !clientSecret}
+   <h1>Something went wrong</h1>
+   {:else}
+   <form class:hidden={success} on:submit|preventDefault={handleSubmit}>
+      <Payment publicKey={PUBLIC_STRIPE_KEY} {clientSecret} />
+      <button type="submit">Place Your Order</button>
+   </form>
 {/if}
 ```
 
-NOTE: For payment setup rather than checkout, replace the line 
+NOTE: For payment setup rather than checkout, replace the line
 
-`const stripeResponse = await $stripeClient.confirmPayment({ elements: $stripeElements, redirect: 'if_required' })` 
+`const stripeResponse = await $stripeClient.confirmPayment({ elements: $stripeElements, redirect: 'if_required' })`
 
 with
 
@@ -106,38 +106,38 @@ with
 
 ```svelte
 <script>
-	import { Payment, stripeClient, stripeElements } from 'sveltekit-stripe'
-	import { PUBLIC_STRIPE_KEY } from '$env/static/public'
-	import { enhance } from '$app/forms'
-	let clientSecret = 'pi_1234567890...' // from your server, see README
-	let success = false
+   import { Payment, stripeClient, stripeElements } from 'sveltekit-stripe'
+   import { PUBLIC_STRIPE_KEY } from '$env/static/public'
+   import { enhance } from '$app/forms'
+   let clientSecret = 'pi_1234567890...' // from your server, see README
+   let success = false
 </script>
 
 {#if success === true}
-	<h1>Success!</h1>
+   <h1>Success!</h1>
 {:else if !clientSecret}
-	<h1>Something went wrong</h1>
+   <h1>Something went wrong</h1>
 {:else}
-	<form class:hidden={success} method="POST" use:enhance={ async ({ cancel }) => {
-		const stripeResponse = await $stripeClient.confirmPayment({ elements: $stripeElements, redirect: 'if_required' })
-		console.log(stripeResponse)
-		if (stripeResponse.error) { 
-			console.log(stripeResponse.error)
-			cancel()
-		} 
-		// At this point, we have a successful payment with Stripe
-		// We still have not submitted the form to our own server
-		// The next line does that by sending it to the default form action
-		return async ({ result }) => {
-			if (result.status === 200) {
-				// our own server has saved the payment
-				success = true
-			} 
-		}
-	}}>
-		<Payment publicKey={PUBLIC_STRIPE_KEY} {clientSecret} />
-		<button id="submit">Place Your Order</button>
-	</form>
+   <form class:hidden={success} method="POST" use:enhance={ async ({ cancel }) => {
+      const stripeResponse = await $stripeClient.confirmPayment({ elements: $stripeElements, redirect: 'if_required' })
+      console.log(stripeResponse)
+      if (stripeResponse.error) { 
+         console.log(stripeResponse.error)
+         cancel()
+      } 
+      // At this point, we have a successful payment with Stripe
+      // We still have not submitted the form to our own server
+      // The next line does that by sending it to the default form action
+      return async ({ result }) => {
+         if (result.status === 200) {
+            // our own server has saved the payment
+            success = true
+         } 
+      }
+   }}>
+      <Payment publicKey={PUBLIC_STRIPE_KEY} {clientSecret} />
+      <button id="submit">Place Your Order</button>
+   </form>
 {/if}
 ```
 
@@ -145,11 +145,11 @@ with
 
 ```js
 export const actions = {
-	default: async({ request }) => {
-		// handle the form submission
-		// save to databse, queue email notification, etc
-		return { success: true }
-	}
+   default: async({ request }) => {
+      // handle the form submission
+      // save to databse, queue email notification, etc
+      return { success: true }
+   }
 }
 ```
 
