@@ -277,7 +277,7 @@ export const load = async () => {
 }
 ```
 
-While the above example works fine, you will probably notice that intantiating a new Stripe object on every load is not ideal.  We could instead create a singleton Stripe object in your app and export it.
+While the above example works fine, you will probably notice that instantiating a new Stripe object on every load is not ideal.  We could instead create a singleton Stripe object in your app and export it.
 
 `lib/server/stripe.js`
 
