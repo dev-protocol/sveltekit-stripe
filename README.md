@@ -208,7 +208,9 @@ Each time a user begins checkout, a payment intent needs to be generated. The pa
 
 In many use cases, another system, such as an ecommerce backend, already has a method of generating and providing client secrets for checkout.  Please see the relevant documentation for your backend.
 
-An ideal way to pass a client secret to the client in SvelteKit is via the load function.  This allows the client secret to be passed to the client as a prop, which is then passed to the Address and Payment components.
+### Passing from Server to Client in a Load Function 
+
+One way to pass a client secret to the client in SvelteKit is via the load function.  The client secret can be passed to the client as a prop, which is then passed to the Address and Payment components.
 
 `+page.server.js`
 
@@ -232,6 +234,95 @@ Please note that `generateClientSecret()` is not a real function.  It is a place
    let clientSecret = data?.clientSecret
    ...
 </script>
+```
+
+### Passing from Server to Client in an Endpoint
+
+Another way to obtain a client secret is to use an endpoint.  A simplified example:
+
+`+server.js`
+
+```js
+import { json } from '@sveltejs/kit'
+
+export async function POST({ request }) {
+	const data = await request.json()
+	// some sort of validation on data
+	const clientSecret = await generateClientSecret() // example function 
+	return json(clientSecret)
+}
+```
+
+`+page.svelte`
+
+```svelte
+...
+{#if success === true}
+   <h1>Success!</h1>
+{:else if !clientSecret}
+	let clientSecret = await fetch('/api/stripe', { 
+		method: 'POST',
+		headers: {'Content-Type': 'application/json'},
+		body: JSON.stringify({some:data}) 
+	}).then(res => res.json())
+...
+```
+
+### A Note About Security
+
+Client secrets include payment intents.  Exposing a way that a bot could generate payment intents very rapidly will expose you to carding attacks.  There are number of ways to mitigate the risk of automated carding attacks.  One way is client-side tools like Turnstile or reCAPTCHA.  A full discussion is outside the scope of this readme, but it's important to mention.  Consider using Turnstile or reCAPTCHA and other tools to rate limit the generation of payment intents.
+
+If passing the client secret via a load function, consider adding a form action to the checkout page and make your checkout button post the token from Turnstile.  The checkout page form action will run before the checkout page load function.
+
+If obtaining the client secret via an endpoint, you can obtain a client-side token before calling the endpoint and validate the token before returning a payment intent. A Turnstile Example:
+
+`+server.js`
+
+```js
+import { validateToken } from 'sveltekit-turnstile'
+import { SECRET_TURNSTILE_KEY } from '$env/static/private'
+import { error, json } from '@sveltejs/kit'
+
+export async function POST({ request }) {
+	const data = await request.json()
+	if (!await validateToken(data.token, SECRET_TURNSTILE_KEY)) throw error(400, { message: 'Bot risk' })
+	// some sort of validation on data
+	const clientSecret = await generateClientSecret() // example function 
+	return json(clientSecret)
+}
+```
+
+`+page.svelte`
+
+```svelte
+<script>
+	...
+	import { PUBLIC_TURNSTILE_SITE_KEY } from '$env/static/public'
+	import { Turnstile } from 'sveltekit-turnstile'
+	...
+</script>
+...
+{#if success === true}
+   <h1>Success!</h1>
+{:else if !token}
+	<Turnstile siteKey={PUBLIC_TURNSTILE_SITE_KEY} on:turnstile-callback={ async (e) => { 
+		token = e.detail.token
+		let body = {
+			token,
+			other: data
+		}
+		try {
+			let clientSecret = await fetch('/api/turnstile', { 
+				method: 'POST', 
+				headers: {'Content-Type': 'application/json'},
+				body: JSON.stringify(body) 
+			}).then(res => res.json())
+		} catch (err) {
+			console.log(err)
+		}
+	 }} />
+{:else}
+...
 ```
 
 ## Generating a Client Secret
@@ -387,13 +478,3 @@ Pass `appearance` as part of the addressOptions or paymentOptions property to cu
    ...
 </script>
 ```
-
-## Other Resources
-
-### sveltekit-superforms
-
-I highly recommend the use of [sveltekit-superforms](https://www.npmjs.com/package/sveltekit-superforms) in conjunction with this library.  It provides a very concise syntax for preventing form re-submission, warning users of data loss before navigating away, etc.
-
-### sveltekit-turnstile
-
-I also recommend [sveltekit-turnstile](https://www.npmjs.com/package/sveltekit-turnstile) to help deter carding and other fraudulent activities.

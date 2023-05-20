@@ -30,7 +30,7 @@
 			}
 		}
 		
-		if (!$stripeElements) {
+		if (!$stripeElements || $stripeElements?._commonOptions?.clientSecret?.clientSecret !== clientSecret) {
 			try {
 				$stripeElements = await $stripeClient.elements({ clientSecret, appearance })
 			} catch (e) {
