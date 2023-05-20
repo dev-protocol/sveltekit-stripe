@@ -246,10 +246,10 @@ Another way to obtain a client secret is to use an endpoint.  A simplified examp
 import { json } from '@sveltejs/kit'
 
 export async function POST({ request }) {
-	const data = await request.json()
-	// some sort of validation on data
-	const clientSecret = await generateClientSecret() // example function 
-	return json(clientSecret)
+   const data = await request.json()
+   // some sort of validation on data
+   const clientSecret = await generateClientSecret() // example function 
+   return json(clientSecret)
 }
 ```
 
@@ -260,11 +260,11 @@ export async function POST({ request }) {
 {#if success === true}
    <h1>Success!</h1>
 {:else if !clientSecret}
-	let clientSecret = await fetch('/api/stripe', { 
-		method: 'POST',
-		headers: {'Content-Type': 'application/json'},
-		body: JSON.stringify({some:data}) 
-	}).then(res => res.json())
+   let clientSecret = await fetch('/api/stripe', { 
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({some:data}) 
+   }).then(res => res.json())
 ...
 ```
 
@@ -284,11 +284,11 @@ import { SECRET_TURNSTILE_KEY } from '$env/static/private'
 import { error, json } from '@sveltejs/kit'
 
 export async function POST({ request }) {
-	const data = await request.json()
-	if (!await validateToken(data.token, SECRET_TURNSTILE_KEY)) throw error(400, { message: 'Bot risk' })
-	// some sort of validation on data
-	const clientSecret = await generateClientSecret() // example function 
-	return json(clientSecret)
+   const data = await request.json()
+   if (!await validateToken(data.token, SECRET_TURNSTILE_KEY)) throw error(400, { message: 'Bot risk' })
+   // some sort of validation on data
+   const clientSecret = await generateClientSecret() // example function 
+   return json(clientSecret)
 }
 ```
 
@@ -296,31 +296,31 @@ export async function POST({ request }) {
 
 ```svelte
 <script>
-	...
-	import { PUBLIC_TURNSTILE_SITE_KEY } from '$env/static/public'
-	import { Turnstile } from 'sveltekit-turnstile'
-	...
+   ...
+   import { PUBLIC_TURNSTILE_SITE_KEY } from '$env/static/public'
+   import { Turnstile } from 'sveltekit-turnstile'
+   ...
 </script>
 ...
 {#if success === true}
    <h1>Success!</h1>
 {:else if !token}
-	<Turnstile siteKey={PUBLIC_TURNSTILE_SITE_KEY} on:turnstile-callback={ async (e) => { 
-		token = e.detail.token
-		let body = {
-			token,
-			other: data
-		}
-		try {
-			let clientSecret = await fetch('/api/turnstile', { 
-				method: 'POST', 
-				headers: {'Content-Type': 'application/json'},
-				body: JSON.stringify(body) 
-			}).then(res => res.json())
-		} catch (err) {
-			console.log(err)
-		}
-	 }} />
+   <Turnstile siteKey={PUBLIC_TURNSTILE_SITE_KEY} on:turnstile-callback={ async (e) => { 
+      token = e.detail.token
+      let body = {
+         token,
+         other: data
+      }
+      try {
+         let clientSecret = await fetch('/api/turnstile', { 
+            method: 'POST', 
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(body) 
+         }).then(res => res.json())
+      } catch (err) {
+         console.log(err)
+      }
+   }} />
 {:else}
 ...
 ```
