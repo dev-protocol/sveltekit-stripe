@@ -312,7 +312,7 @@ export async function POST({ request }) {
          other: data
       }
       try {
-         let clientSecret = await fetch('/api/turnstile', { 
+         clientSecret = await fetch('/api/turnstile', { 
             method: 'POST', 
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(body) 
