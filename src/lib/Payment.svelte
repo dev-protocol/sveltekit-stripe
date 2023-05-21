@@ -30,7 +30,7 @@
 			}
 		}
 		
-		if (!$stripeElements || $stripeElements?._commonOptions?.clientSecret?.clientSecret !== clientSecret) {
+		if (!$stripeElements) {
 			try {
 				$stripeElements = await $stripeClient.elements({ clientSecret, appearance })
 			} catch (e) {
@@ -40,10 +40,7 @@
 		}
 		
 		mounted = true
-		
 		return () => {
-			stripeClient.set(null)
-			stripeElements.set(null)
          mounted = false
       }
 	})
@@ -59,6 +56,8 @@
 		return {
 			destroy: () => {
 				if (paymentContainer) paymentContainer.destroy()
+				stripeClient.set(null)
+				stripeElements.set(null)
 			}
 		}
    }
