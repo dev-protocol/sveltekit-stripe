@@ -136,7 +136,7 @@ with
       }
    }}>
       <Payment publicKey={PUBLIC_STRIPE_KEY} {clientSecret} />
-      <button id="submit">Place Your Order</button>
+      <button type="submit">Place Your Order</button>
    </form>
 {/if}
 ```
@@ -197,7 +197,7 @@ To easiest way to use the Address component is to bind the container, like in th
    }}>
       <Address publicKey={PUBLIC_STRIPE_KEY} {clientSecret} bind:addressContainer />
       <Payment publicKey={PUBLIC_STRIPE_KEY} {clientSecret} />
-      <button id="submit">Place Your Order</button>
+      <button type="submit">Place Your Order</button>
    </form>
 {/if}
 ```
