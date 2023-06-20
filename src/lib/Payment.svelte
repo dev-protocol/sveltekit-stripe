@@ -1,65 +1,65 @@
 <script>
-	import { onMount } from 'svelte'
-	import { stripeClient, stripeElements } from '$lib/stores'
-	import { loadStripe } from '$lib/loadStripe'
-	import { error } from '@sveltejs/kit'
-	import { dev } from '$app/environment'
+   import { onMount } from 'svelte'
+   import { stripeClient, stripeElements } from '$lib/stores'
+   import { loadStripe } from '$lib/loadStripe'
+   import { error } from '@sveltejs/kit'
+   import { dev } from '$app/environment'
 
-	export let publicKey
-	export let clientSecret
-	export let paymentOptions = {}
-	let paymentContainer
+   export let publicKey
+   export let clientSecret
+   export let paymentOptions = {}
+   let paymentContainer
 
-	let appearance = paymentOptions?.appearance || { theme: 'stripe' }
+   let appearance = paymentOptions?.appearance || { theme: 'stripe' }
 
-	// see all options available at
-	// https://stripe.com/docs/js/elements_object/create_payment_element
-	paymentOptions.layout = paymentOptions?.layout || 'tabs'
+   // see all options available at
+   // https://stripe.com/docs/js/elements_object/create_payment_element
+   paymentOptions.layout = paymentOptions?.layout || 'tabs'
 
-	let mounted = false
+   let mounted = false
 
-	onMount(async () => {
-		if (!publicKey || !clientSecret) return false
-	
-		if (!$stripeClient) {
-			try {
-				await loadStripe(publicKey)
-			} catch (e) {
-				if (dev) console.error(e)
-				else throw error(500, 'Something went wrong')
-			}
-		}
-		
-		if (!$stripeElements) {
-			try {
-				$stripeElements = await $stripeClient.elements({ clientSecret, appearance })
-			} catch (e) {
-				if (dev) console.error(e)
-				else throw error(500, 'Something went wrong')
-			}
-		}
-		
-		mounted = true
-		return () => {
+   onMount(async () => {
+      if (!publicKey || !clientSecret) return false
+   
+      if (!$stripeClient) {
+         try {
+            await loadStripe(publicKey)
+         } catch (e) {
+            if (dev) console.error(e)
+            else throw error(500, 'Something went wrong')
+         }
+      }
+      
+      if (!$stripeElements) {
+         try {
+            $stripeElements = await $stripeClient.elements({ clientSecret, appearance })
+         } catch (e) {
+            if (dev) console.error(e)
+            else throw error(500, 'Something went wrong')
+         }
+      }
+      
+      mounted = true
+      return () => {
          mounted = false
       }
-	})
-	
-	const paymentElement = (node) => {
-		try {
-			paymentContainer = $stripeElements.create('payment', paymentOptions)
-			paymentContainer.mount(node)
+   })
+   
+   const paymentElement = (node) => {
+      try {
+         paymentContainer = $stripeElements.create('payment', paymentOptions)
+         paymentContainer.mount(node)
       } catch (e) {
-			if (dev) console.error(e)
-			else throw error(500, 'Something went wrong')
+         if (dev) console.error(e)
+         else throw error(500, 'Something went wrong')
       }
-		return {
-			destroy: () => {
-				if (paymentContainer) paymentContainer.destroy()
-				stripeClient.set(null)
-				stripeElements.set(null)
-			}
-		}
+      return {
+         destroy: () => {
+            if (paymentContainer) paymentContainer.destroy()
+            stripeClient.set(null)
+            stripeElements.set(null)
+         }
+      }
    }
 
 </script>
